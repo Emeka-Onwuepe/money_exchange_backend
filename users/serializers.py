@@ -51,6 +51,11 @@ class Customer_Serializer(serializers.ModelSerializer):
         model = Customer
         fields = '__all__'
 
+class Edit_Customer_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        exclude = ("balance",)
+
 class Payee_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Payee

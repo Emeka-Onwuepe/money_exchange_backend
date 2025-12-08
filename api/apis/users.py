@@ -1,5 +1,5 @@
 from users.models import Customer, Payee
-from users.serializers import (Customer_Serializer, Get_User_Serializer, Payee_Serializer,User_Serializer, 
+from users.serializers import (Customer_Serializer, Edit_Customer_Serializer, Get_User_Serializer, Payee_Serializer,User_Serializer, 
                                Login_Serializer,Edit_User_Serializer)
 from django.contrib.auth import get_user_model
 User=get_user_model()
@@ -56,30 +56,32 @@ class CustomerApi(generics.GenericAPIView):
     # permission_classes = [permissions.IsAuthenticated]
     serializer_class =Customer_Serializer
 
+    def get(self, request, *args, **kwargs):
+        customers = Customer.objects.all()
+        serializer = self.get_serializer(customers, many=True)
+        return Response({"customers": serializer.data}, status=status.HTTP_200_OK)
+
     def post(self, request, *args, **kwargs):
         user = request.user
         action = request.data.get('action')
         data = request.data.get('data')
-        print( data)
-        json = {"data":{"full_name":"",
-                        "phone_number":"",
-                        "email":""}, "action":"create"}
 
         if action == 'create':
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             customer = serializer.save()
-            return Response(self.get_serializer(customer).data, status=status.HTTP_201_CREATED)
+            return Response({"customer":self.get_serializer(customer).data})
+      
         elif action == 'update':
             customer_id = data.get('id')
             try:
                 customer = Customer.objects.get(id=customer_id)
             except Customer.DoesNotExist:
                 return Response({'error': 'Customer not found'}, status=status.HTTP_404_NOT_FOUND)
-            serializer = self.get_serializer(data=data, instance=customer)
+            serializer = Edit_Customer_Serializer(data=data, instance=customer)
             serializer.is_valid(raise_exception=True)
             customer = serializer.save()
-            return Response(self.get_serializer(customer).data, status=status.HTTP_200_OK)
+            return Response({"customer":self.get_serializer(customer).data})
         elif action == 'delete':
             customer_id = data.get('id')
             try:
@@ -93,8 +95,15 @@ class CustomerApi(generics.GenericAPIView):
 
 
 class PayeeApi(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     serializer_class =Payee_Serializer
+
+    def get(self, request, *args, **kwargs):
+        payees = Payee.objects.all()
+        serializer = self.get_serializer(payees, many=True)
+        print(serializer.data)
+        return Response({"payees": serializer.data})
+
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -105,7 +114,7 @@ class PayeeApi(generics.GenericAPIView):
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             payee = serializer.save()
-            return Response(self.get_serializer(payee).data, status=status.HTTP_201_CREATED)
+            return Response({"payee":self.get_serializer(payee).data})
         
         elif action == 'update':
             payee_id = data.get('id')
@@ -116,7 +125,7 @@ class PayeeApi(generics.GenericAPIView):
             serializer = self.get_serializer(data=data, instance=payee)
             serializer.is_valid(raise_exception=True)
             payee = serializer.save()
-            return Response(self.get_serializer(payee).data, status=status.HTTP_200_OK)
+            return Response({"payee":self.get_serializer(payee).data})
         elif action == 'delete':
             payee_id = data.get('id')
             try:
