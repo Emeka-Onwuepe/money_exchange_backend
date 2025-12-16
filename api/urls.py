@@ -2,7 +2,7 @@ from rest_framework import routers
 from django.urls import path
 from knox import views as KnoxView
 
-from api.apis.transaction import TransactionApi
+from api.apis.transaction import TransactionApi, paymentApi
 from api.apis.users import (CustomerApi, EditUser, 
                             LoginUser,
                              PayeeApi, RegisterUser)
@@ -26,7 +26,9 @@ urlpatterns = [
     # payee apis
     path('payee', PayeeApi.as_view(), name="payee"),
     # transaction apis
-    path('transaction', TransactionApi.as_view(), name="transaction"),
+    path('exchange', TransactionApi.as_view(), name="exchange"),
+    path('payment', paymentApi.as_view(), name="payment"),
+
     
 ]
 
