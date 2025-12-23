@@ -2,6 +2,7 @@ from django.db.models.signals import (post_save,post_delete,
                                       pre_delete,pre_save)
 from django.dispatch import receiver
 from django.db import models
+from transactions.helper import generate_id
 from transactions.models import Payment, Transaction
 from users.models import Customer
 
@@ -52,7 +53,7 @@ def create_transaction(sender, instance, **kwargs):
 
 
     if not instance.pk:
-        transaction_id = "kjkjkjk"  # Replace with actual logic to generate transaction ID
+        transaction_id = generate_id(instance.base_currency) 
         instance.transaction_id = transaction_id
         balance = round((instance.paid_amount - instance.naira),2)
         instance.balance = balance

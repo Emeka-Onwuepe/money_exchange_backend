@@ -51,6 +51,8 @@ class Transaction(models.Model):
 
         verbose_name = 'Transaction'
         verbose_name_plural = 'Transactions'
+        ordering = ['-date']
+
 
     def __str__(self):
         """Unicode representation of Transaction."""
@@ -64,12 +66,15 @@ class Payment(models.Model):
     date = models.DateField(auto_now_add=True)
     amount = models.FloatField(default=0.0)
     transaction = models.ForeignKey(Transaction, related_name='payment_transaction', on_delete=models.CASCADE)
+    channel = models.CharField(max_length=8,
+                                      choices = channels ,default='transfer')
 
     class Meta:
         """Meta definition for Payment."""
 
         verbose_name = 'Payment'
         verbose_name_plural = 'Payments'
+        ordering = ['-date']
 
     def __str__(self):
         """Unicode representation of Payment."""
