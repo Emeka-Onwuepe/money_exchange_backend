@@ -6,7 +6,7 @@ from transactions.serializers import Payment_Serializer, Transaction_Serializer
 
 
 class TransactionApi(generics.GenericAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class =Transaction_Serializer
     parser_classes = (MultiPartParser, FormParser)
 
@@ -68,7 +68,7 @@ class TransactionApi(generics.GenericAPIView):
 
 
 class paymentApi(generics.GenericAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class =Payment_Serializer
 
 

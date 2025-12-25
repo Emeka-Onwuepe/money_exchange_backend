@@ -7,7 +7,7 @@ from transactions.serializers import (Transaction_Serializer,
             PaymentDepth_Serializer,Payment_Serializer, TransactionDepth_Serializer)
 
 class AnalyticsApi(generics.GenericAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     def post(self, request, *args, **kwargs):
         action = request.data.get('action')
         data = request.data['data']

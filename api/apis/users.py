@@ -53,7 +53,7 @@ class EditUser(generics.GenericAPIView):
     
 
 class CustomerApi(generics.GenericAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class =Customer_Serializer
 
     def get(self, request, *args, **kwargs):
@@ -95,7 +95,7 @@ class CustomerApi(generics.GenericAPIView):
 
 
 class PayeeApi(generics.GenericAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class =Payee_Serializer
 
     def get(self, request, *args, **kwargs):

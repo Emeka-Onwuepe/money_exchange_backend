@@ -56,12 +56,14 @@ class UserAdmin(BaseUserAdmin):
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
     list_display = ('full_name','email','phone_number', 
-                    'user_type','is_admin','is_staff')
+                    'verified',
+                    'user_type','is_admin')
     list_filter = ('is_admin',)
     # actions = [make_manager,]
     actions = []
     fieldsets = (
     (None, {'fields': ('full_name','email','phone_number','user_type',
+                       'verified',
                        'api_number','password', 'is_active')}),
     ('Permissions', {'fields': ('is_admin',"staff")}),
     )
@@ -71,7 +73,7 @@ class UserAdmin(BaseUserAdmin):
     (None, {
     'classes': ('wide',),
     'fields': ('full_name','phone_number',
-               'user_type',
+               'user_type','verified',
                'email','password1', 'password2')}
     ),
     )

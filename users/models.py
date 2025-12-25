@@ -12,7 +12,7 @@ user_types = (
 
 class UserManager(BaseUserManager):
     def create_user(self,phone_number, full_name='null',
-                    user_type="owner",email=None,
+                    user_type="staff",email=None,
                     api_number= None,
                     password=None):
         if not phone_number:
@@ -37,11 +37,9 @@ class UserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser,PermissionsMixin):
-    full_name = models.CharField(verbose_name='full_name', max_length=255,
-                                 default='Name not set',
-                                 null=True)
+    full_name = models.CharField(verbose_name='full_name', max_length=255)
     phone_number = models.CharField(verbose_name='phone number', max_length=20,unique=True)
-    user_type = models.CharField(max_length=20, choices = user_types,default='owner')
+    user_type = models.CharField(max_length=20, choices = user_types,default='staff')
     email = models.EmailField(verbose_name='email address',max_length=255,null=True,
                               blank=True,unique=True)
     api_number = models.CharField(verbose_name='api_number', max_length=20,
