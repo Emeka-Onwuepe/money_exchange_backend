@@ -24,3 +24,15 @@ class PaymentDepth_Serializer(serializers.ModelSerializer):
         model = Payment
         depth = 2
         fields = '__all__'
+
+class Income_Serializer(serializers.Serializer):
+    date = serializers.DateField()
+    paid_amount = serializers.FloatField()
+    channel = serializers.CharField()
+    full_name = serializers.CharField()
+    transactionId = serializers.CharField()
+    base_currency = serializers.CharField()
+    transaction_amount = serializers.FloatField()
+    payee_name = serializers.CharField()
+    nature = serializers.CharField()  # 'Transaction' or 'Payment'
+

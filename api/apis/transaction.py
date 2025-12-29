@@ -25,6 +25,9 @@ class TransactionApi(generics.GenericAPIView):
         elif action == 'date':
             date = request.query_params.get('date', None)
             transactions = Transaction.objects.filter(date=date)
+        elif action == 'transaction_id':
+            transaction_id = request.query_params.get('transaction_id', None)
+            transactions = Transaction.objects.filter(transaction_id=transaction_id)
         else:
             transactions = Transaction.objects.all()
         serializer = self.get_serializer(transactions, many=True)
