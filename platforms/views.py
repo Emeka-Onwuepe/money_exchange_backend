@@ -4,7 +4,9 @@ import requests
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from platforms.helpers import get_message, send_whatsapp_message_func
-from users.models import  User
+from transactions.models import Rate, Transaction
+from transactions.serializers import Transaction_Serializer
+from users.models import  Customer, Payee, User
 from variables import token, phone_id,VERIFY_TOKEN
 from django.utils import timezone
 
@@ -28,25 +30,86 @@ def Whatsapp_Hooks(request, *args, **kwargs):
         
         print('message recieved')
         data = json.loads(request.body.decode('utf-8'))
-        print(data)
         try:
-            if 'messages' in data['entry'][0]['changes'][0]['value'].keys():
+            if data['entry'][0]['changes'][0]['value'].get('contacts'):
+
                 whatsapp_message = get_message(data)
-                print(whatsapp_message)
+                print('actionvmmmm',len(whatsapp_message['action']))
+
                 if (timezone.now() - whatsapp_message['timestamp']) > timezone.timedelta(minutes=session_minutes):
+                    print('session expired')
+
                     # remember to decide what to do with the message
-                    return HttpResponse("EVENT_RECEIVED", status=200)
-                
-                sender =  whatsapp_message.pop('sender')
-                sender = f"+{sender}"
-    
+                    return HttpResponse({'status':"ok"}, status=200)
+                local = f"0{whatsapp_message['sender'][3:]}"
+                sender = f"+{whatsapp_message['sender']}"
+                user = User.objects.get(phone_number = local)
+                if not user.verified:
+                    print('not verified')
+                    msg = 'You are not authorized to send messages to this number'
+                    send_whatsapp_message_func(msg,sender)
+                    return HttpResponse({'status':"ok"}, status=200)
+                action = whatsapp_message['action'].strip()
+                if action == 'add_transaction':
+                    data = whatsapp_message['content']
+                    customer_name = data['customer'].lower()
+                    payee_name = data['payee'].lower()
+                    customer = Customer.objects.get(full_name = customer_name)
+                    payee = Payee.objects.get(name = payee_name )
+                    data['customer'] = customer
+                    data['payee'] = payee
+                    transaction = Transaction.objects.create(**data)
+                    transaction.save()
+                    data = Transaction_Serializer(transaction).data
+                    msg = 'Transaction added successfully\n'
+                    for key,value in data.items():
+                        print(key,value)
+                        if key not in ['customer','payee',
+                                       'id','date','reciept','paid_once']:
+                            msg += f"{key} : {value}\n"
+
+                    send_whatsapp_message_func(msg,sender)
+
+                    return HttpResponse({'status':"ok"}, status=200)
+                if action == 'set_rate' or action == 'send_rate':
+                    did = 'set'
+                    data = whatsapp_message['content']
+                    for key,value in data.items():
+                        rate,created = Rate.objects.get_or_create(currency =key)
+                        rate.rate = float(value.strip().replace(',',''))
+                        rate.save()
+                        if action == 'send_rate':
+                            did = 'sent'
+                            customers = Customer.objects.all().values_list('phone_number',flat=True)
+                            for customer in customers:
+                                number = f"+234{customer[1:]}"
+                                msg = f"{key} new rate is {value}"
+                                res = send_whatsapp_message_func(msg,number)
+                    msg = f'Rate {did} successfully'
+                    send_whatsapp_message_func(msg,sender)
+
+                    return HttpResponse({'status':"ok"}, status=200)
+
                        
         except User.DoesNotExist:
             msg = 'You are not authorized to send messages to this number'
             send_whatsapp_message_func(msg,sender)
-            return HttpResponse("Invalid request", status=400)
-        return HttpResponse("EVENT_RECEIVED", status=200)
-    return HttpResponse("Invalid request", status=400)
+            return HttpResponse({'status':"ok"}, status=200)
+        except IntegrityError:
+            return HttpResponse({'status':"ok"}, status=200)
+        except Customer.DoesNotExist:
+            msg = 'customer not found'
+            send_whatsapp_message_func(msg,sender)
+            return HttpResponse({'status':"ok"}, status=200)
+        except Payee.DoesNotExist:
+            msg = 'Payee not found'
+            send_whatsapp_message_func(msg,sender)
+            return HttpResponse({'status':"ok"}, status=200)
+        
+        return HttpResponse({'status':"ok"}, status=200)
+
+    return HttpResponse({'status':"ok"}, status=200)
+
 
 
 def send_whatsapp_message(request,message):

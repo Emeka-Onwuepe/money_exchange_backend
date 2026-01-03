@@ -57,6 +57,26 @@ class Transaction(models.Model):
     def __str__(self):
         """Unicode representation of Transaction."""
         return f"{self.customer.full_name} - {self.base_currency} {self.amount}  on {self.date}"
+    
+
+class Rate(models.Model):
+    """Model definition for Rate."""
+
+    # TODO: Define fields here
+    currency = models.CharField(max_length=4,
+                                      choices = currencies ,default='RMB')
+    rate = models.FloatField(default=0.0)
+    date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """Meta definition for Rate."""
+
+        verbose_name = 'Rate'
+        verbose_name_plural = 'Rates'
+
+    def __str__(self):
+        """Unicode representation of Rate."""
+        return f"{self.currency} {self.rate}  on {self.date}"
 
 
 class Payment(models.Model):

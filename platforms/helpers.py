@@ -19,30 +19,50 @@ def send_whatsapp_message_func(message,sender):
         }
     }
     response = requests.post(url, headers=headers, json=payload)
-    print(response.text)
     return response
 
 def convert_whatsapp_timestamp(timestamp):
     return datetime.fromtimestamp(int(timestamp)).astimezone()
 
 def get_message(data):
+
     context = 'medical_practitioner'
     messages = data['entry'][0]['changes'][0]['value']['messages'][0]
     sender = messages['from']
     message_type = messages['type']
     record_format = 'text'
+    action = ''
+
     if message_type == 'text':
         content = messages['text']['body']
+        content_dic = {}
+        elems = content.split('\n')
+
+        if len(elems) > 1:
+            for elem in elems:
+                if ':' in elem:
+                    key, value = elem.split(':', 1)
+                    if key.strip() == 'action':
+                        action = value.strip()
+                    elif key.strip() in ['amount','usd_rate','usd_price','naira_rate','paid_amount']:
+                        content_dic[key.strip()] = float(value.strip().replace(',',''))
+                    else:
+                        content_dic[key.strip()] = value.strip()
+            content = content_dic
+
     else:
         content = messages[message_type]['id']
         record_format = messages[message_type]['mime_type'].split('/')[1]
+
     id = messages['id']
     timestamp = messages['timestamp']
     verify_context = messages.get('context')
+
     if verify_context:
         context = 'patient'
     return {'record_type':message_type, 'context':context,
             'content':content,'record_id':id,
+            'action':action, 
             "timestamp": convert_whatsapp_timestamp(timestamp),
             'record_format':record_format, 'sender':sender}
     
@@ -63,3 +83,21 @@ def get_whatsapp_api_files(file_id):
     else:
         print(f"Error fetching API files: {response.status_code}")
 
+
+
+# {'object': 'whatsapp_business_account', 
+#  'entry': [{'id': '1186813426403332', 
+#             'changes': [{'value': {'messaging_product': 'whatsapp', 
+#                                    'metadata': {'display_phone_number': '15551920032', 'phone_number_id': '988162111037642'},
+#                                     'contacts': [{'profile': {'name': 'EMEKA ONWUEPE'}, 'wa_id': '2348132180216'}],
+#                                       'messages': [{'from': '2348132180216', 
+#                                                     'id': 'wamid.HBgNMjM0ODEzMjE4MDIxNhUCABIYIEFDRjIzM0Q4NjY3RkFGQzhBQzlCMjdGNzk5REJDNzI1AA==', 
+#                                                     'timestamp': '1767243880', 
+#                                                     'text': {'body': 'Hello'}, 'type': 'text'}]}, 'field': 'messages'}]}]}
+
+
+# {'record_type': 'text', 'context': 'medical_practitioner', 
+#  'content': 'Hello', 
+#  'record_id': 'wamid.HBgNMjM0ODEzMjE4MDIxNhUCABIYIEFDRjIzM0Q4NjY3RkFGQzhBQzlCMjdGNzk5REJDNzI1AA==', 
+#  'timestamp': datetime.datetime(2026, 1, 1, 6, 4, 40, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600), 'W. Central Africa Standard Time')),
+#    'record_format': 'text', 'sender': '2348132180216'}
