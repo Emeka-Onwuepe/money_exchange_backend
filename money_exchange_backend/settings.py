@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-cn#*x2aj5*1m8vrp3&l&fck^_vqm%_5ad^0_10(+*7ze=r!0&8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','c1b3f9df8eff.ngrok-free.app']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','685457bc573e.ngrok-free.app']
 
 
 # Application definition
@@ -106,7 +106,7 @@ REST_KNOX = {
 }
 
 # 102-89-32-47
-CORS_ORIGIN_WHITELIST = ['http://localhost:5173','https://cda689929f1d.ngrok-free.app']
+CORS_ORIGIN_WHITELIST = ['http://localhost:5173','https://685457bc573e..ngrok-free.app']
 
 
 # Database
@@ -154,9 +154,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-uk'
 
-TIME_ZONE = 'Africa/Lagos'
+TIME_ZONE = 'Africa/Lagos'  # UTC+1, or use 'UTC' if you prefer UTC time
 
 USE_I18N = True
 

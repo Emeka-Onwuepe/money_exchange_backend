@@ -27,14 +27,17 @@ def Whatsapp_Hooks(request, *args, **kwargs):
 
     if request.method == 'POST':
         session_minutes = 10
-        
-        print('message recieved')
-        data = json.loads(request.body.decode('utf-8'))
+
+        data = None
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except ValueError:
+            return HttpResponse({'status':"ok"}, status=200)
+
         try:
             if data['entry'][0]['changes'][0]['value'].get('contacts'):
 
                 whatsapp_message = get_message(data)
-                print('actionvmmmm',len(whatsapp_message['action']))
 
                 if (timezone.now() - whatsapp_message['timestamp']) > timezone.timedelta(minutes=session_minutes):
                     print('session expired')
@@ -43,13 +46,28 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                     return HttpResponse({'status':"ok"}, status=200)
                 local = f"0{whatsapp_message['sender'][3:]}"
                 sender = f"+{whatsapp_message['sender']}"
+                action = whatsapp_message['action'].strip()
+
+                if action == 'get_rate':
+                    try:
+                        data = whatsapp_message['content']
+                        rate = Rate.objects.get(currency = data['needed'])
+                        # keep only date, hour and minute
+                        date = timezone.localtime(rate.date).strftime("%d-%m-%Y %H:%M")
+                        msg = f"Currency: {rate.currency}\nRate: {rate.rate}\nNaira Rate: {rate.naira_rate}\nlast update: {date}"
+                        send_whatsapp_message_func(msg,sender)
+                        return HttpResponse({'status':"ok"}, status=200)
+                    except Rate.DoesNotExist:
+                        msg = f'{data['needed']} not found'
+                        send_whatsapp_message_func(msg,sender)
+                        return HttpResponse({'status':"ok"}, status=200)
+
                 user = User.objects.get(phone_number = local)
                 if not user.verified:
-                    print('not verified')
                     msg = 'You are not authorized to send messages to this number'
                     send_whatsapp_message_func(msg,sender)
                     return HttpResponse({'status':"ok"}, status=200)
-                action = whatsapp_message['action'].strip()
+                
                 if action == 'add_transaction':
                     data = whatsapp_message['content']
                     customer_name = data['customer'].lower()
@@ -63,7 +81,6 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                     data = Transaction_Serializer(transaction).data
                     msg = 'Transaction added successfully\n'
                     for key,value in data.items():
-                        print(key,value)
                         if key not in ['customer','payee',
                                        'id','date','reciept','paid_once']:
                             msg += f"{key} : {value}\n"
@@ -74,9 +91,11 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                 if action == 'set_rate' or action == 'send_rate':
                     did = 'set'
                     data = whatsapp_message['content']
+                    naira_rate = data.pop('naira_rate')
                     for key,value in data.items():
-                        rate,created = Rate.objects.get_or_create(currency =key)
+                        rate,created = Rate.objects.get_or_create(currency = key)
                         rate.rate = float(value.strip().replace(',',''))
+                        rate.naira_rate = naira_rate
                         rate.save()
                         if action == 'send_rate':
                             did = 'sent'
@@ -96,7 +115,13 @@ def Whatsapp_Hooks(request, *args, **kwargs):
             send_whatsapp_message_func(msg,sender)
             return HttpResponse({'status':"ok"}, status=200)
         except IntegrityError:
+            send_whatsapp_message_func('IntegrityError',sender)
             return HttpResponse({'status':"ok"}, status=200)
+        except KeyError:
+            send_whatsapp_message_func('KeyError',sender)
+            return HttpResponse({'status':"ok"}, status=200)
+        except ValueError:
+            send_whatsapp_message_func('ValueError',sender)
         except Customer.DoesNotExist:
             msg = 'customer not found'
             send_whatsapp_message_func(msg,sender)
@@ -147,14 +172,12 @@ def get_media_file(request,media_id):
 
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        # print(response.content)
         return HttpResponse(response.content, content_type=response.headers['Content-Type'])
     else:
         return HttpResponse("Failed to retrieve media file", status=response.status_code)
     
 def get_abs(request):
     
-    # print(allowed_hosts)
     record = Whatsapp_Record.objects.first()
     return HttpResponse(record.get_absolute_url(), status=200)
 

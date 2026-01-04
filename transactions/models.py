@@ -66,6 +66,7 @@ class Rate(models.Model):
     currency = models.CharField(max_length=4,
                                       choices = currencies ,default='RMB')
     rate = models.FloatField(default=0.0)
+    naira_rate = models.FloatField(default=0.0)
     date = models.DateTimeField(auto_now=True)
 
     class Meta:

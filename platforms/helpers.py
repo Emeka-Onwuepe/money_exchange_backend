@@ -32,23 +32,33 @@ def get_message(data):
     message_type = messages['type']
     record_format = 'text'
     action = ''
+    content = ''
+
 
     if message_type == 'text':
-        content = messages['text']['body']
-        content_dic = {}
-        elems = content.split('\n')
+        content = messages['text']['body'].strip()
 
-        if len(elems) > 1:
-            for elem in elems:
-                if ':' in elem:
-                    key, value = elem.split(':', 1)
-                    if key.strip() == 'action':
-                        action = value.strip()
-                    elif key.strip() in ['amount','usd_rate','usd_price','naira_rate','paid_amount']:
-                        content_dic[key.strip()] = float(value.strip().replace(',',''))
-                    else:
-                        content_dic[key.strip()] = value.strip()
-            content = content_dic
+        if len(content) < 10 and ":" not in content:
+            action = 'get_rate'
+            content = content.split(" ")
+            if len(content) == 2:
+                base,_ = content
+                content = {'needed':base.upper()}
+        else:
+            content_dic = {}
+            elems = content.split('\n')
+
+            if len(elems) > 1:
+                for elem in elems:
+                    if ':' in elem:
+                        key, value = elem.split(':', 1)
+                        if key.strip() == 'action':
+                            action = value.strip()
+                        elif key.strip() in ['amount','usd_rate','usd_price','naira_rate','paid_amount']:
+                            content_dic[key.strip()] = float(value.strip().replace(',',''))
+                        else:
+                            content_dic[key.strip()] = value.strip()
+                content = content_dic
 
     else:
         content = messages[message_type]['id']

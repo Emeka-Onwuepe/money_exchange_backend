@@ -15,7 +15,6 @@ class TransactionApi(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         transactions = None
         action = request.query_params.get('action', None)
-        print("action",action)
         if action == "customer":
             customer_id = request.query_params.get('customer', None)
             transactions = Transaction.objects.filter(customer=int(customer_id))

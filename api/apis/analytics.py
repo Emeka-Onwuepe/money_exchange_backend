@@ -14,8 +14,6 @@ class AnalyticsApi(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         action = request.data.get('action')
         data = request.data['data']
-        print(request.data)
-        print('action',action)
 
         action_group =['get_statement', 'download_statement','get_today_statement',
                        ]
@@ -98,7 +96,6 @@ class AnalyticsApi(generics.GenericAPIView):
                 }
             
             # for transaction in transactions:
-            print('transaction',statement_data['transactions'])
             if action != 'download_statement':
                 return Response({ 'analysis': statement_data}, status=status.HTTP_200_OK)
             elif action == 'download_statement':
