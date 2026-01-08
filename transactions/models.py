@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 
 from users.models import Customer, Payee
@@ -24,7 +25,7 @@ class Transaction(models.Model):
     """Model definition for Transaction."""
 
     # TODO: Define fields here
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(blank=True)
     transaction_id = models.CharField(max_length=100, unique=True,null=True, blank=True)
     base_currency = models.CharField(max_length=4,
                                       choices = currencies ,default='RMB')
@@ -58,6 +59,12 @@ class Transaction(models.Model):
         """Unicode representation of Transaction."""
         return f"{self.customer.full_name} - {self.base_currency} {self.amount}  on {self.date}"
     
+    def save(self, *args, **kwargs):
+        if not self.date:
+            self.date = timezone.now().date()
+        super().save(*args,**kwargs)
+
+  
 
 class Rate(models.Model):
     """Model definition for Rate."""
@@ -84,7 +91,7 @@ class Payment(models.Model):
     """Model definition for Payment."""
 
     # TODO: Define fields here
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(blank=True)
     amount = models.FloatField(default=0.0)
     transaction = models.ForeignKey(Transaction, related_name='payment_transaction', on_delete=models.CASCADE)
     channel = models.CharField(max_length=8,
@@ -100,3 +107,8 @@ class Payment(models.Model):
     def __str__(self):
         """Unicode representation of Payment."""
         return f"{self.transaction.customer.full_name} {self.amount} {self.date}"
+    
+    def save(self, *args, **kwargs):
+        if not self.date:
+            self.date = timezone.now().date()
+        super().save(*args,**kwargs)
