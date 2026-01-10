@@ -24,12 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-cn#*x2aj5*1m8vrp3&l&fck^_vqm%_5ad^0_10(+*7ze=r!0&8'
+
+# SECRET_KEY = 'django-insecure-cn#*x2aj5*1m8vrp3&l&fck^_vqm%_5ad^0_10(+*7ze=r!0&8'
+SECRET_KEY = os.environ.get("secret")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','685457bc573e.ngrok-free.app']
+ALLOWED_HOSTS = ['backend.divineexservices.com.ng','685457bc573e.ngrok-free.app']
 
 
 # Application definition
@@ -112,25 +114,25 @@ CORS_ORIGIN_WHITELIST = ['http://localhost:5173','https://685457bc573e..ngrok-fr
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.environ.get("db_name"),
-#         'USER':  os.environ.get("db_user"),
-#         'HOST': 'localhost',
-#         'PASSWORD':  os.environ.get("db_password"),
-#         'PORT': '',
-#         'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-#                     }
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get("db_name"),
+        'USER':  os.environ.get("db_user"),
+        'HOST': 'localhost',
+        'PASSWORD':  os.environ.get("db_password"),
+        'PORT': '',
+        'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                    }
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
