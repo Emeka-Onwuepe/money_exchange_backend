@@ -68,6 +68,10 @@ class Transaction(models.Model):
 
 class Rate(models.Model):
     """Model definition for Rate."""
+    # Your Backup Code is
+    # c775 fbd6 de26 866d
+    # 941713
+    # dan1.host-ww.net
 
     # TODO: Define fields here
     currency = models.CharField(max_length=4,
