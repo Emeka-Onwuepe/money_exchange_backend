@@ -1,4 +1,4 @@
 __pycache__/
-migrations/
+*/migrations/[0-9]*
 db*
 media/

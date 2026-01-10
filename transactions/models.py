@@ -72,6 +72,7 @@ class Rate(models.Model):
     # c775 fbd6 de26 866d
     # 941713
     # dan1.host-ww.net
+    # backend.divineexservices.com.ng
 
     # TODO: Define fields here
     currency = models.CharField(max_length=4,
