@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get("secret")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['backend.divineexservices.com.ng','685457bc573e.ngrok-free.app']
+ALLOWED_HOSTS = ['backend.divineexservices.com.ng']
 
 
 # Application definition
@@ -108,7 +108,8 @@ REST_KNOX = {
 }
 
 # 102-89-32-47
-CORS_ORIGIN_WHITELIST = ['http://localhost:5173','https://685457bc573e..ngrok-free.app']
+CORS_ORIGIN_WHITELIST = ['backend.divineexservices.com.ng',
+                            'app.divineexservices.com.ng','divineexservices.com.ng']
 
 
 # Database
