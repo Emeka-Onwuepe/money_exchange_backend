@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     "knox",
+    "corsheaders",
     'api.apps.ApiConfig',
     'platforms.apps.PlatformsConfig',
     'transactions.apps.TransactionsConfig',
@@ -52,9 +53,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -108,8 +109,11 @@ REST_KNOX = {
 }
 
 # 102-89-32-47
-CORS_ORIGIN_WHITELIST = ['backend.divineexservices.com.ng',
-                            'app.divineexservices.com.ng','divineexservices.com.ng']
+# CORS_ORIGIN_WHITELIST = ['backend.divineexservices.com.ng',
+#                             'app.divineexservices.com.ng','divineexservices.com.ng']
+CORS_ALLOWED_ORIGINS = ['https://backend.divineexservices.com.ng',
+                            'https://app.divineexservices.com.ng',
+                            'https://divineexservices.com.ng']
 
 
 # Database
