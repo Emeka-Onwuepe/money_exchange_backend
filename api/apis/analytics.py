@@ -30,9 +30,9 @@ class AnalyticsApi(generics.GenericAPIView):
 
             agg = transactions.aggregate(
                 # total_amount=models.Sum('amount'),
-                total_usd_price=models.Sum('usd_price'),
+                total_usd_bid=models.Sum('usd_bid'),
                 total_usd_gain=models.Sum('usd_gain'),
-                total_usd_rate=models.Sum('usd_rate'),
+                total_usd_ask=models.Sum('usd_ask'),
                 total_naira=models.Sum('naira'),
                 total_payments_in_naira = models.Sum('balance') + models.Sum('naira') ,
                 total_balance_in_naria=models.Sum('balance'),
@@ -40,9 +40,9 @@ class AnalyticsApi(generics.GenericAPIView):
             )
             grouped_agg = transactions.values('base_currency').annotate(
                 total_amount=models.Sum('amount'),
-                total_usd_price=models.Sum('usd_price'),
+                total_usd_bid=models.Sum('usd_bid'),
                 total_usd_gain=models.Sum('usd_gain'),
-                total_usd_rate=models.Sum('usd_rate'),
+                total_usd_ask=models.Sum('usd_ask'),
                 total_naira=models.Sum('naira'),
                 total_payments_in_naira = models.Sum('balance') + models.Sum('naira') ,
                 total_balance_in_naria=models.Sum('balance'),

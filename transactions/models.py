@@ -52,7 +52,7 @@ class Transaction(models.Model):
 
         verbose_name = 'Transaction'
         verbose_name_plural = 'Transactions'
-        ordering = ['-date']
+        ordering = ['-id']
 
 
     def __str__(self):
