@@ -21,6 +21,104 @@ def send_whatsapp_message_func(message,sender):
     response = requests.post(url, headers=headers, json=payload)
     return response
 
+def add_comma(number):
+    number_str = str(number).split('.')[0]
+    decimal_str = None
+    if '.' in str(number):
+        decimal_str = str(number).split('.')[1]
+    if len(number_str) <= 3:
+        if decimal_str:
+            return number_str + '.' + decimal_str
+        return number_str
+    reversed_str = number_str[::-1]
+    comma_added_str = ",".join([reversed_str[i:i+3] for i in range(0, len(reversed_str), 3)])
+    comma_added_str = comma_added_str[::-1]
+    if decimal_str:
+        comma_added_str += '.' + decimal_str
+    return comma_added_str
+
+
+def send_rate_template_message(reciever,base,rate):
+    rate = float(rate.strip().replace(',',''))
+    base = base.upper()
+    rate_ = rate
+    rate_6_6 = add_comma(round(rate * 6.6,1))
+    rate_6_7 = add_comma(round(rate * 6.7,1))
+    rate_6_8 = add_comma(round(rate * 6.8,1))
+    rate_6_9 = add_comma(round(rate * 6.9,1))
+    rate_7 = add_comma(round(rate * 7,1)) 
+    url = f"https://graph.facebook.com/v22.0/{phone_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+   
+    
+    payload = {
+        "messaging_product":"whatsapp",
+        "recipient_type":"individual",
+        "to":reciever,
+        "type":"template",
+        "template":{
+        "name":"rate_review",
+        "language":{
+        "code":"en_US"
+        },
+        "components":[
+        {
+        "type":"body",
+        "parameters":[
+
+        {
+        "type":"text",
+        "parameter_name":"base",
+        "text":base
+        },
+        {
+        "type":"text",
+        "parameter_name":"rate",
+        "text":rate
+        },
+        {
+        "type":"text",
+        "parameter_name":"rate_",
+        "text":rate_
+        },
+        {
+        "type":"text",
+        "parameter_name":"rate_6_6",
+        "text": rate_6_6
+        },
+        {
+        "type":"text",
+        "parameter_name":"rate_6_7",
+        "text":rate_6_7
+        },
+        {
+        "type":"text",
+        "parameter_name":"rate_6_8",
+        "text":rate_6_8
+        },
+        {
+        "type":"text",
+        "parameter_name":"rate_6_9",
+        "text":rate_6_9
+        },
+        {
+        "type":"text",
+        "parameter_name":"rate_7",
+        "text":rate_7
+        }
+
+        ] 
+        }]
+        }}
+    response = requests.post(url, headers=headers, json=payload)
+    return response
+
+
+
+
 def convert_whatsapp_timestamp(timestamp):
     return datetime.fromtimestamp(int(timestamp)).astimezone()
 

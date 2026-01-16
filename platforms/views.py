@@ -3,7 +3,7 @@ from django.db import IntegrityError
 import requests
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from platforms.helpers import get_message, send_whatsapp_message_func
+from platforms.helpers import get_message, send_rate_template_message, send_whatsapp_message_func
 from transactions.models import Rate, Transaction
 from transactions.serializers import Transaction_Serializer
 from users.models import  Customer, Payee, User
@@ -104,6 +104,7 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                                 number = f"+234{customer[1:]}"
                                 msg = f"{key} new rate is {value}"
                                 res = send_whatsapp_message_func(msg,number)
+                                res = send_rate_template_message(number,key,value)
                     msg = f'Rate {did} successfully'
                     send_whatsapp_message_func(msg,sender)
 
