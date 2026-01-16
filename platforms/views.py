@@ -103,7 +103,6 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                             for customer in customers:
                                 number = f"+234{customer[1:]}"
                                 msg = f"{key} new rate is {value}"
-                                res = send_whatsapp_message_func(msg,number)
                                 res = send_rate_template_message(number,key,value)
                     msg = f'Rate {did} successfully'
                     send_whatsapp_message_func(msg,sender)
@@ -118,8 +117,9 @@ def Whatsapp_Hooks(request, *args, **kwargs):
         except IntegrityError:
             send_whatsapp_message_func('IntegrityError',sender)
             return HttpResponse({'status':"ok"}, status=200)
-        except KeyError:
-            send_whatsapp_message_func('KeyError',sender)
+        except KeyError as e:
+            msg = f'key error {e}'
+            send_whatsapp_message_func(msg,sender)
             return HttpResponse({'status':"ok"}, status=200)
         except ValueError:
             send_whatsapp_message_func('ValueError',sender)
