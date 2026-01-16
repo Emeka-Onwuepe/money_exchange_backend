@@ -54,7 +54,8 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                         rate = Rate.objects.get(currency = data['needed'])
                         # keep only date, hour and minute
                         date = timezone.localtime(rate.date).strftime("%d-%m-%Y %H:%M")
-                        msg = f"Currency: {rate.currency}\nRate: {rate.rate}\nNaira Rate: {rate.naira_rate}\nlast update: {date}"
+                        # msg = f"Currency: {rate.currency}\nRate: {rate.rate}\nNaira Rate: {rate.naira_rate}\nlast update: {date}"
+                        msg = f"Currency: {rate.currency}\nRate: {rate.rate}\nlast update: {date}"
                         send_whatsapp_message_func(msg,sender)
                         return HttpResponse({'status':"ok"}, status=200)
                     except Rate.DoesNotExist:
@@ -91,11 +92,11 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                 if action == 'set_rate' or action == 'send_rate':
                     did = 'set'
                     data = whatsapp_message['content']
-                    naira_rate = data.pop('naira_rate')
+                    # naira_rate = data.pop('naira_rate')
                     for key,value in data.items():
                         rate,created = Rate.objects.get_or_create(currency = key)
                         rate.rate = float(value.strip().replace(',',''))
-                        rate.naira_rate = naira_rate
+                        # rate.naira_rate = naira_rate
                         rate.save()
                         if action == 'send_rate':
                             did = 'sent'
