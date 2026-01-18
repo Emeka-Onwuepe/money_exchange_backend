@@ -3,7 +3,7 @@ from django.db import IntegrityError
 import requests
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from platforms.helpers import get_message, send_rate_template_message, send_whatsapp_message_func
+from platforms.helpers import check_status, get_message, send_rate_template_message, send_whatsapp_message_func
 from transactions.models import Rate, Transaction
 from transactions.serializers import Transaction_Serializer
 from users.models import  Customer, Payee, User
@@ -31,8 +31,15 @@ def Whatsapp_Hooks(request, *args, **kwargs):
         data = None
         try:
             data = json.loads(request.body.decode('utf-8'))
+            check = check_status(data)
+            if check['is_status']:
+                customer = Customer.objects.get(phone_number = check['number'])
+                customer.message_status = check['status']
+                customer.save()
         except ValueError:
             return HttpResponse({'status':"ok"}, status=200)
+        except customer.DoesNotExist:
+            pass
 
         try:
             if data['entry'][0]['changes'][0]['value'].get('contacts'):
@@ -127,6 +134,10 @@ def Whatsapp_Hooks(request, *args, **kwargs):
             return HttpResponse({'status':"ok"}, status=200)
         except ValueError:
             send_whatsapp_message_func('ValueError',sender)
+            return HttpResponse({'status':"ok"}, status=200)
+        except TypeError:
+            # send_whatsapp_message_func('ValueError',sender)
+            return HttpResponse({'status':"ok"}, status=200)
         except Customer.DoesNotExist:
             msg = 'customer not found'
             send_whatsapp_message_func(msg,sender)

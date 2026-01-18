@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get("secret")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['backend.divineexservices.com.ng']
+ALLOWED_HOSTS = ['backend.divineexservices.com.ng','www.backend.divineexservices.com.ng']
 
 
 # Application definition

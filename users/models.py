@@ -89,6 +89,7 @@ class Customer(models.Model):
     email = models.EmailField(max_length=255, null=True, blank=True)
     balance = models.FloatField(default=0.0,blank=True)
     address = models.TextField(null=True, blank=True)
+    message_status = models.CharField(max_length=20,default='init')
 
 
     class Meta:
@@ -99,7 +100,7 @@ class Customer(models.Model):
 
     def __str__(self):
         """Unicode representation of Customer."""
-        return self.full_name
+        return f'{self.full_name} -- {self.message_status}'
 
 
 class Payee(models.Model):

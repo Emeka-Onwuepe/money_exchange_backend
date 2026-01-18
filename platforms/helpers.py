@@ -112,8 +112,8 @@ def send_rate_template_message(reciever,base,rate):
         "text":rate_7
         },
         {
-        "type":"date",
-        "parameter_name":"rate_7",
+        "type":"text",
+        "parameter_name":"date",
         "text":date
         }
 
@@ -198,6 +198,16 @@ def get_whatsapp_api_files(file_id):
     else:
         print(f"Error fetching API files: {response.status_code}")
 
+def check_status(data):
+    details = {}
+    details['is_status'] = False
+    needed = data['entry'][0]['changes'][0]['value'].get('statuses')
+    if needed:
+        details['is_status'] = True
+        number = needed[0]['recipient_id']
+        details['number'] = f"0{number[3:]}"
+        details['status'] = needed[0]['status']
+    return details
 
 
 # {'object': 'whatsapp_business_account', 
