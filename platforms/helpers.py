@@ -47,6 +47,8 @@ def send_rate_template_message(reciever,base,rate):
     rate_6_8 = add_comma(round(rate * 6.8,1))
     rate_6_9 = add_comma(round(rate * 6.9,1))
     rate_7 = add_comma(round(rate * 7,1)) 
+    date = datetime.now().strftime("%d/%m/%Y")
+
     url = f"https://graph.facebook.com/v22.0/{phone_id}/messages"
     headers = {
         "Authorization": f"Bearer {token}",
@@ -62,7 +64,7 @@ def send_rate_template_message(reciever,base,rate):
         "template":{
         "name":"rate_review",
         "language":{
-        "code":"en_US"
+        "code":"en"
         },
         "components":[
         {
@@ -108,6 +110,11 @@ def send_rate_template_message(reciever,base,rate):
         "type":"text",
         "parameter_name":"rate_7",
         "text":rate_7
+        },
+        {
+        "type":"date",
+        "parameter_name":"rate_7",
+        "text":date
         }
 
         ] 
