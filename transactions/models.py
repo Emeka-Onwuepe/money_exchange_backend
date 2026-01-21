@@ -16,9 +16,32 @@ currencies = (
                 ("PKR","PKR"),
                 )
 
+banks = (('none','none'),
+         ('access','access'),
+         ('gtb','gtb'),
+         ('zenith','zenith'),
+         ('uba','uba'),
+         ('firstbank','firstbank'),
+         ('fidelity','fidelity'),
+         ('polaris','polaris'),
+         ('wema','wema'),
+         ('sterling','sterling'),
+         ('kuda','kuda'),
+         ('opay','opay'),
+         ('paycom','paycom'),
+         ('ecobank','ecobank'),
+         ('fcmb','fcmb'),
+         ('providus','providus'),
+         ('jaiz','jaiz'),
+         ('suntrust','suntrust'),
+         ('albaraka','albaraka'),
+         ('citibank','citibank'),
+         ('standard chartered','standard chartered'),
+         )
+
 channels = (('transfer','transfer'),
             ('cash','cash'),
-            ('credit','credit')
+            # ('credit','credit')
             )
 
 class Transaction(models.Model):
@@ -30,20 +53,22 @@ class Transaction(models.Model):
     base_currency = models.CharField(max_length=4,
                                       choices = currencies ,default='RMB')
     usd_rate = models.FloatField(default=0.0)
-    usd_price = models.FloatField(default=0.0)
-    naira_rate = models.FloatField(default=0.0)
+    naira_rate_cp = models.FloatField(default=0.0)
+    naira_rate_sp = models.FloatField(default=0.0)
     amount = models.FloatField(default=0.0)
     payee = models.ForeignKey(Payee, related_name='transaction_payee', on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, related_name='transaction_customer', on_delete=models.CASCADE)
     reciept = models.FileField(upload_to='receipts/', null=True, blank=True)
-    naira = models.FloatField(default=0.0)
-    usd_bid = models.FloatField(default=0.0)
-    usd_ask = models.FloatField(default=0.0)
-    usd_gain = models.FloatField(default=0.0)
+    # naira = models.FloatField(default=0.0)
+    naira_cp = models.FloatField(default=0.0)
+    naira_sp = models.FloatField(default=0.0)
+    naira_gain = models.FloatField(default=0.0)
     balance = models.FloatField(default=0.0)
     paid_amount = models.FloatField(default=0.0)
     channel = models.CharField(max_length=8,
                                       choices = channels ,default='transfer')
+    bank = models.CharField(max_length=20,
+                                      choices = banks ,default='none')
     paid_once = models.BooleanField(default=True)
 
 
@@ -101,6 +126,8 @@ class Payment(models.Model):
     transaction = models.ForeignKey(Transaction, related_name='payment_transaction', on_delete=models.CASCADE)
     channel = models.CharField(max_length=8,
                                       choices = channels ,default='transfer')
+    bank = models.CharField(max_length=20,
+                                      choices = banks ,default='none')
 
     class Meta:
         """Meta definition for Payment."""

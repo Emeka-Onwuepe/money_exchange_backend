@@ -112,9 +112,9 @@ def Whatsapp_Hooks(request, *args, **kwargs):
                                 number = f"+234{customer[1:]}"
                                 msg = f"{key} new rate is {value}"
                                 res = send_rate_template_message(number,key,value)
-                                if res.status_code != 200 or res.status_code != 201:
-                                    error_msg = res.text
-                                    send_whatsapp_message_func(error_msg,sender)
+                                # if res.status_code != 200 or res.status_code != 201:
+                                #     error_msg = res.text
+                                #     send_whatsapp_message_func(error_msg,sender)
                     msg = f'Rate {did} successfully'
                     send_whatsapp_message_func(msg,sender)
 

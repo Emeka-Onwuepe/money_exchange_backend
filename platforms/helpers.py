@@ -159,7 +159,7 @@ def get_message(data):
                         key, value = elem.split(':', 1)
                         if key.strip() == 'action':
                             action = value.strip()
-                        elif key.strip() in ['amount','usd_rate','usd_price','naira_rate','paid_amount']:
+                        elif key.strip() in ['amount','usd_rate','naira_cp','naira_sp','paid_amount']:
                             content_dic[key.strip()] = float(value.strip().replace(',',''))
                         else:
                             content_dic[key.strip()] = value.strip()

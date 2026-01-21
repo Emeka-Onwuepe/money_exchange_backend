@@ -30,21 +30,20 @@ class AnalyticsApi(generics.GenericAPIView):
 
             agg = transactions.aggregate(
                 # total_amount=models.Sum('amount'),
-                total_usd_bid=models.Sum('usd_bid'),
-                total_usd_gain=models.Sum('usd_gain'),
-                total_usd_ask=models.Sum('usd_ask'),
-                total_naira=models.Sum('naira'),
-                total_payments_in_naira = models.Sum('balance') + models.Sum('naira') ,
+                total_naira_cp=models.Sum('naira_cp'),
+                total_naira_sp=models.Sum('naira_sp'),
+                total_naira_gain=models.Sum('naira_gain'),
+                total_payments_in_naira = models.Sum('balance') + models.Sum('naira_sp') ,
                 total_balance_in_naria=models.Sum('balance'),
 
             )
             grouped_agg = transactions.values('base_currency').annotate(
                 total_amount=models.Sum('amount'),
-                total_usd_bid=models.Sum('usd_bid'),
-                total_usd_gain=models.Sum('usd_gain'),
-                total_usd_ask=models.Sum('usd_ask'),
-                total_naira=models.Sum('naira'),
-                total_payments_in_naira = models.Sum('balance') + models.Sum('naira') ,
+                total_naira_cp=models.Sum('naira_cp'),
+                total_naira_sp=models.Sum('naira_sp'),
+                total_naira_gain=models.Sum('naira_gain'),
+                # total_naira=models.Sum('naira'),
+                total_payments_in_naira = models.Sum('balance') + models.Sum('naira_sp') ,
                 total_balance_in_naria=models.Sum('balance'),
 
             )
@@ -55,7 +54,7 @@ class AnalyticsApi(generics.GenericAPIView):
                 transactionId=models.F('transaction_id'),
                 transaction_amount = models.F('amount'),
                 nature=models.Value('Transaction', output_field=models.CharField()),
-            ).values('date', 'paid_amount', 'channel', 'full_name', 'transactionId',
+            ).values('date', 'paid_amount', 'channel','bank' ,'full_name', 'transactionId',
                      'base_currency','transaction_amount', 'payee_name', 'nature')
 
 
@@ -70,7 +69,7 @@ class AnalyticsApi(generics.GenericAPIView):
                 transaction_amount = models.F('transaction__amount'),
                 nature=models.Value('Payment', output_field=models.CharField()),
 
-            ).values('date','paid_amount', 'full_name', 'channel',
+            ).values('date','paid_amount', 'full_name', 'channel', 'bank',
                     'transactionId','base_currency','transaction_amount',
                     'payee_name', 'nature')
 
@@ -80,10 +79,16 @@ class AnalyticsApi(generics.GenericAPIView):
             incomes.sort(key=lambda x: x['date'])
             total_income = sum(item.get('paid_amount', 0) for item in incomes)
             total_income_by_chaennel = {}
+            total_income_by_bank = {}
             for item in incomes:
                 channel = item.get('channel')
+                bank = item.get('bank')
                 amount = item.get('paid_amount', 0) 
                 total_income_by_chaennel[channel] = total_income_by_chaennel.get(channel, 0) + amount
+                total_income_by_bank[bank] = total_income_by_bank.get(bank, 0) + amount
+            if 'none' in total_income_by_bank:
+                del total_income_by_bank['none']
+            total_income_by_bank['total_amount'] = sum(total_income_by_bank.values())
 
             statement_data = {
                     "overall": agg,
@@ -93,6 +98,7 @@ class AnalyticsApi(generics.GenericAPIView):
                     'incomes': Income_Serializer(incomes, many=True).data,
                     'total_income': total_income,
                     'total_income_by_channel': total_income_by_chaennel,
+                    'total_income_by_bank': total_income_by_bank,
                 }
             
             # for transaction in transactions:
@@ -112,6 +118,8 @@ class AnalyticsApi(generics.GenericAPIView):
                 total_income_df = pd.DataFrame([{'Total Income': statement_data['total_income']}])
                 total_income_by_channel_df = pd.DataFrame(list(statement_data['total_income_by_channel'].items()),
                                                            columns=['Channel', 'Total'])
+                total_income_by_bank_df = pd.DataFrame(list(statement_data['total_income_by_bank'].items()),
+                                                           columns=['Bank', 'Total'])
 
                 folder_path = 'media/statements/'
                 if not os.path.exists(folder_path):
@@ -120,15 +128,21 @@ class AnalyticsApi(generics.GenericAPIView):
                 workbook_name = 'statement.xlsx'
                 worksheet_path = f'{folder_path}{workbook_name}'
                 work_sheet_url = request.build_absolute_uri(f'/{worksheet_path}')
+                start_row = 0
 
                 with pd.ExcelWriter(worksheet_path, engine='xlsxwriter') as writer:
                     transactions_df.to_excel(writer, sheet_name='Transactions', index=False)
                     # payments_df.to_excel(writer, sheet_name='Payments', index=False)
                     incomes_df.to_excel(writer, sheet_name='Incomes', index=False)
+                    start_row = len(incomes_df) + 3
+                    total_income_by_bank_df.to_excel(writer, sheet_name='Incomes',
+                                                        startrow=start_row, index=False)
+                    start_row += len(total_income_by_bank_df) + 3
                     total_income_by_channel_df.to_excel(writer, sheet_name='Incomes', 
-                                                        startrow=len(incomes_df)+3, index=False)
+                                                        startrow=start_row, index=False)
+                    start_row += len(total_income_by_channel_df) + 3
                     total_income_df.to_excel(writer, sheet_name='Incomes',
-                                              startrow=len(incomes_df)+len(total_income_by_channel_df)+6, index=False)
+                                              startrow=start_row, index=False)
 
                     
                     overall_df.to_excel(writer, sheet_name='Overall Summary', index=False)

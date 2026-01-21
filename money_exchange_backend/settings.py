@@ -26,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 
 # SECRET_KEY = 'django-insecure-cn#*x2aj5*1m8vrp3&l&fck^_vqm%_5ad^0_10(+*7ze=r!0&8'
-SECRET_KEY = os.environ.get("secret")
+# SECRET_KEY = os.environ.get("secret")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['backend.divineexservices.com.ng','www.backend.divineexservices.com.ng']
+ALLOWED_HOSTS = ['localhost','backend.divineexservices.com.ng','www.backend.divineexservices.com.ng']
 
 
 # Application definition
@@ -113,7 +113,8 @@ REST_KNOX = {
 #                             'app.divineexservices.com.ng','divineexservices.com.ng']
 CORS_ALLOWED_ORIGINS = ['https://backend.divineexservices.com.ng',
                             'https://app.divineexservices.com.ng',
-                            'https://divineexservices.com.ng']
+                            'https://divineexservices.com.ng',
+                            'http://localhost:5173']
 
 
 # Database

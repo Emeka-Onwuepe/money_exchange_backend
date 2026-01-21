@@ -29,6 +29,7 @@ class Income_Serializer(serializers.Serializer):
     date = serializers.DateField()
     paid_amount = serializers.FloatField()
     channel = serializers.CharField()
+    bank = serializers.CharField()
     full_name = serializers.CharField()
     transactionId = serializers.CharField()
     base_currency = serializers.CharField()

@@ -4,34 +4,7 @@ from django.dispatch import receiver
 from django.db import models
 from transactions.helper import generate_id
 from transactions.models import Payment, Transaction
-from users.models import Customer
-
-#  date = models.DateField(auto_now_add=True)
-    # transaction_id = models.CharField(max_length=100, unique=True)
-    # base_currency = models.CharField(max_length=4,
-    #                                   choices = currencies ,default='RMB')
-    # usd_rate = models.FloatField(default=0.0)
-    # usd_price = models.FloatField(default=0.0)
-    # naira_rate = models.FloatField(default=0.0)
-    # amount = models.FloatField(default=0.0)
-    # payee = models.ForeignKey(Payee, related_name='transaction_payee', on_delete=models.CASCADE)
-    # customer = models.ForeignKey(Customer, related_name='transaction_customer', on_delete=models.CASCADE)
-    # reciept = models.FileField(upload_to='receipts/', null=True, blank=True)
-    # naira = models.FloatField(default=0.0)
-    # usd_bid = models.FloatField(default=0.0)
-    # usd_ask = models.FloatField(default=0.0)
-    # usd_gain = models.FloatField(default=0.0)
-    # balance = models.FloatField(default=0.0)
-    # paid_amount = models.FloatField(default=0.0)
-    # channel = models.CharField(max_length=8,
-    #                                   choices = channels ,default='transfer')
-    # paid_once = models.BooleanField(default=True)
-
-    # <td>{(exchange.amount / exchange.usd_rate).toFixed(1)}</td>
-    #                 <td>{.toFixed(1)}</td>
-    #                 <td>{toFixed(1)}</td>
-    #                 <td>{}</td>
-    #                 
+from users.models import Customer              
 
 @receiver(pre_save, sender=Transaction)
 def create_transaction(sender, instance, **kwargs):
@@ -46,27 +19,26 @@ def create_transaction(sender, instance, **kwargs):
         old = Transaction.objects.get(pk = instance.pk)
 
 
-    instance.naira = round((instance.amount * instance.naira_rate),2)     
-    instance.usd_ask = round((instance.amount / instance.usd_rate),2)
-    instance.usd_bid = round((instance.amount / instance.usd_price),2)
-    instance.usd_gain = round((((1/instance.usd_price) - (1/instance.usd_rate)) * instance.amount),2)
+    instance.naira_sp = round((instance.amount * instance.naira_rate_sp),2)
+    instance.naira_cp = round((instance.amount * instance.naira_rate_cp),2)
+    instance.naira_gain = round((instance.naira_sp - instance.naira_cp),2) 
 
 
     if not instance.pk:
         transaction_id = generate_id(instance.base_currency) 
         instance.transaction_id = transaction_id
-        balance = round((instance.paid_amount - instance.naira),2)
+        balance = round((instance.paid_amount - instance.naira_sp),2)
         instance.balance = balance
         customer.balance += balance
         customer.save()
     elif instance.pk:
         # check if naira or paid_amount changed
-        if (old.paid_amount != instance.paid_amount) or (old.naira != instance.naira):
+        if (old.paid_amount != instance.paid_amount) or (old.naira_sp != instance.naira_sp):
             total_payments = Payment.objects.filter(transaction=instance).aggregate(total=models.Sum('amount'))['total'] or 0.0
             # print("old", old.paid_amount)
             # print("new",instance.paid_amount)
             # print("BALANCE",instance.balance)
-            instance.balance = round((instance.paid_amount - instance.naira) + total_payments,2)
+            instance.balance = round((instance.paid_amount - instance.naira_sp) + total_payments,2)
             # print("updated",instance.balance)
 
         # check if the balance was edited
