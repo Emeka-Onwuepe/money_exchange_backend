@@ -85,7 +85,7 @@ class Customer(models.Model):
 
     # TODO: Define fields here
     full_name = models.CharField(max_length=255,unique=True)
-    phone_number = models.CharField(max_length=20,unique=True)
+    phone_number = models.CharField(max_length=20,unique=True,null=True,blank=True)
     email = models.EmailField(max_length=255, null=True, blank=True)
     balance = models.FloatField(default=0.0,blank=True)
     address = models.TextField(null=True, blank=True)
@@ -108,7 +108,7 @@ class Payee(models.Model):
 
     # TODO: Define fields here
     name = models.CharField(max_length=255,unique=True)
-    phone_number = models.CharField(max_length=20,unique=True)
+    phone_number = models.CharField(max_length=20,unique=True,null=True,blank=True)
     email = models.EmailField(max_length=255, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
 

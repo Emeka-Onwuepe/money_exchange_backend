@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from transactions.models import Payment, Transaction
 from transactions.serializers import Payment_Serializer, Transaction_Serializer
+from users.models import Customer, Payee
 
 
 class TransactionApi(generics.GenericAPIView):
@@ -28,7 +29,7 @@ class TransactionApi(generics.GenericAPIView):
             transaction_id = request.query_params.get('transaction_id', None)
             transactions = Transaction.objects.filter(transaction_id=transaction_id)
         else:
-            transactions = Transaction.objects.all()
+            transactions = Transaction.objects.all()[:50]
         serializer = self.get_serializer(transactions, many=True)
         return Response({"transactions": serializer.data}, status=status.HTTP_200_OK)
 
@@ -38,8 +39,19 @@ class TransactionApi(generics.GenericAPIView):
         action = request.data.get('action')
         data = request.data
         # del data['action']
-
-        if action == 'create':
+        if action == 'create_transaction':
+            payee_name = data.get('payee').strip()
+            payee, created = Payee.objects.get_or_create(name=payee_name)
+            customer_name = data.get('customer').strip()
+            customer, created = Customer.objects.get_or_create(full_name=customer_name)
+            data_copy = data.copy()
+            data_copy['payee'] = payee.id
+            data_copy['customer'] = customer.id
+            serializer = self.get_serializer(data=data_copy)
+            serializer.is_valid(raise_exception=True)
+            transaction = serializer.save()
+            return Response({"transaction":self.get_serializer(transaction).data}, status=status.HTTP_201_CREATED)
+        elif action == 'create':
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             transaction = serializer.save()
