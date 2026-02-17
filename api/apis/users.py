@@ -101,7 +101,7 @@ class PayeeApi(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         payees = Payee.objects.all()
         serializer = self.get_serializer(payees, many=True)
-        print(serializer.data)
+        # print(serializer.data)
         return Response({"payees": serializer.data})
 
 

@@ -28,6 +28,8 @@ class TransactionApi(generics.GenericAPIView):
         elif action == 'transaction_id':
             transaction_id = request.query_params.get('transaction_id', None)
             transactions = Transaction.objects.filter(transaction_id=transaction_id)
+        elif action == 'credits':
+            transactions = Transaction.objects.filter(balance__lt=0)
         else:
             transactions = Transaction.objects.all()[:50]
         serializer = self.get_serializer(transactions, many=True)
